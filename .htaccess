@@ -1,0 +1,14 @@
+DirectoryIndex public/index.php
+
+Options -Indexes
+Options -MultiViews
+Options +FollowSymLinks
+
+RewriteEngine on
+RewriteBase /projekt
+
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-l
+
+RewriteRule ^(.*)$ public/index.php?url=$1 [L]

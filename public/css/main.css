@@ -1,0 +1,164 @@
+body
+{
+    background-color: white;
+    font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+}
+
+.container
+{
+    width: 1000px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+img
+{
+    height: 150px;
+    width: 300px;
+    padding-top: 30px;
+}
+
+.nowy_uzytkownik
+{
+    height: 50px;
+    padding-top: 15px;
+    font-size: small;
+    color: rgb(6, 43, 73);
+
+}
+
+
+.tekst_glowny
+{
+    position: relative; left: 275px;
+}
+
+.klik
+{
+    text-align: center;
+    height: 30px;
+}
+
+.pole_logowania
+{
+    text-align: center;
+    padding-top: 10px;
+}
+
+.haslo
+{
+    width: 300px;
+}
+
+.glowne_uwaga
+{
+    text-align: center;
+    opacity: 0.8;
+    
+}
+
+.glowne_tekst
+{
+    text-align: center;
+    font-size: small;
+    width: 900px;
+    text-align: center;
+    opacity: 0.6;
+    padding-left: 50px;
+}
+
+a.link1
+{
+    color: black;
+    text-decoration: none;
+}
+
+a.link2
+{
+    color: rgb(22, 95, 155);
+    text-decoration: none;
+}
+a.link2:hover
+{
+    color: rgb(6, 43, 73);
+}
+
+hr
+{
+    color: rgb(6, 43, 73);
+    opacity: 0.8;
+}
+
+.zalo
+{
+    width: 500px;
+}
+
+.stopka
+{
+    font-size: large;
+}
+
+.stopka_jeden
+{
+    float: left;
+    width: 420px;
+}
+
+.stopka_dwa
+{
+    width: 55px;
+    float: left;
+}
+
+.stopka_przerwa
+{
+    width: 40px;
+    height: 1px;
+    float: left;
+}
+
+.stopka_trzy
+{
+    float: left;
+    width: 65px;
+}
+
+.stopka_cztery
+{
+    text-align: right;
+    float: left;
+    width: 420px;
+}
+
+input[type=text]
+{
+    width: 450px;
+    height: 40px;
+    padding: 12px 20px;
+    margin: 8px 0;
+    box-sizing: border-box;
+}
+
+input[type=password]
+{
+    width: 450px;
+    height: 40px;
+    padding: 12px 20px;
+    margin: 8px 0;
+    box-sizing: border-box;
+}
+
+button[type=submit]
+{
+    width: 200px;
+    height: 40px;
+    color: white;
+    background-color: rgb(6, 43, 73);
+    cursor: pointer;
+}
+
+button[type=submit]:hover
+{
+    background-color: rgb(3, 25, 43)
+}
