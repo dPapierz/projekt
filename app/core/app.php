@@ -2,15 +2,27 @@
 
 namespace Core;
 
+use Controllers\Error;
+use Exception;
+
 session_start();
+ini_set('display_errors', 0);
 
 require_once 'loader.php';
 
 class App {
     public function __construct() {
         $URL = $this->parseUrl();
-        
-        $controller = new $URL['controller'];
+        $controller = null;
+
+        try {
+            $controller = new $URL['controller'];
+        } catch(Exception $e) {
+            $controller = new Error();
+            $URL['method'] = 'index';
+            $URL['GET'] = [];
+            $URL['POST'] = [];
+        }
         $controller->process($URL['method'], ['GET' => $URL['GET'], 'POST' => $URL['POST']]);
     }
 

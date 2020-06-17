@@ -32,7 +32,13 @@ class Db extends mysqli {
         }
     }
 
-    public static function getInstance($section) {
+    /**
+     * Zwraca instancje bazy danych
+     * 
+     * @param string $section
+     * @return Db
+     */
+    public static function getInstance($section = 'database') {
         if( !isset(self::$INSTANCES[$section]) ) {
             self::setOptions($section); 
             self::$INSTANCES[$section] = new self(); 
@@ -52,22 +58,51 @@ class Db extends mysqli {
         self::$_socket = isset($CONFIG['socket']) ? $CONFIG['socket'] : null;
     }
 
-    public function query($query, $resultmode = null) {
-        if( !$this->real_query($query) ) {
-            throw new exception( $this->error, $this->errno );
-        }
-
-        $result = new mysqli_result($this);
-        return $result;
-    }
-
     public function prepare($query) {
         $stmt = new mysqli_stmt($this, $query);
         return $stmt;
-    } 
+    }
 
     /**
-     * Fetch first value in first column 
+     * Dodaje nowy rekord do DB
+     * 
+     * @param string $query
+     * @param array $BIND
+     * 
+     * @return int|bool
+     */
+    public function insert($query, $BIND = []) {
+        $stmt = $this->_prepareQuery($query, $BIND);
+        if ($stmt->execute()) {
+            if (empty($stmt->insert_id))
+                return true;
+                
+            return (int)$stmt->insert_id;
+        }
+
+        return false;
+    }
+
+
+
+    /**
+     * Aktualizuje dane w DB
+     * 
+     * @param string $query
+     * @param array $BIND
+     * 
+     * @return int|bool
+     */
+    public function update($query, $BIND = []) {
+        $stmt = $this->_prepareQuery($query, $BIND);
+        if ($stmt->execute())
+            return (int)$stmt->affected_rows;
+
+        return false;
+    }
+
+    /**
+     * Zwraca pierwsza wartosc z pierwszego rekordu
      * 
      * @param string $query
      * @param array $BIND
@@ -75,77 +110,100 @@ class Db extends mysqli {
      * @return string|bool
      */
     public function fetchOne($query, $BIND = []) {
-        $result = $this->_prepareQuery($query, $BIND);
-        if (!$result) {
-            return false;
+        $stmt = $this->_prepareQuery($query, $BIND);
+        if($stmt->execute()) {
+            $result = $stmt->get_result();
+
+            if (!$result) {
+                return false;
+            }
+
+            $ROW = $result->fetch_array(MYSQLI_NUM);
+            return (string)$ROW[0];
         }
 
-        $ROW = $result->fetch_array(MYSQLI_NUM);
-        return (string)$ROW[0];
+        return false;
     }
 
     /**
-     * Fetch first row
+     * Zwraca pierwszpy rekord
      * 
      * @param string $query
      * @param array $BIND
      * @return array|bool
      */
     public function fetchRow($query, $BIND = []) {
-        $result = $this->_prepareQuery($query, $BIND);
-        if (!$result) {
-            return false;
+        $stmt = $this->_prepareQuery($query, $BIND);
+        if($stmt->execute()) {
+            $result = $stmt->get_result();
+
+            if (!$result) {
+                return false;
+            }
+
+            return (array)$result->fetch_array(MYSQLI_ASSOC);
         }
 
-        return (array)$result->fetch_array(MYSQLI_ASSOC);
+        return false;
     }
 
     /**
-     * Fetch all
+     * Zwraca wszystkie znalezione rekordy
      * 
      * @param string $query
      * @param array $BIND
      * @return array|bool
      */
     public function fetchAll($query, $BIND = []) {
-        $result = $this->_prepareQuery($query, $BIND);        
-        if (!$result) {
-            return false;
+        $stmt = $this->_prepareQuery($query, $BIND);
+        if($stmt->execute()) {
+            $result = $stmt->get_result();
+            
+            if (!$result) {
+                return false;
+            }
+
+            return (array)$result->fetch_all(MYSQLI_ASSOC);
         }
 
-        return (array)$result->fetch_all(MYSQLI_ASSOC);
+        return false;
     }
 
     /**
-     * Fetch first row
+     * Przygotowuje zapytanie i zajmuje sie wiazaniem wszystkich zmiennych do zapytania
      * 
      * @param string $query
      * @param array $BIND
-     * @return mysqli_result|false
+     * @return mysqli_stmt
      */
     private function _prepareQuery($query, $BIND = []) {
         $stmt = $this->prepare($query);
+        if(empty($BIND)) {
+            return $stmt;
+        }
+
+        $PARAMS = [0 => ''];
         foreach ($BIND as $PARAM) {
             switch($PARAM['mysqliBindType']) {
                 case self::MYSQLI_BIND_TYPE_DOUBLE:
-                    $param = (double)$PARAM['value'];
+                    $PARAMS[0] .= self::MYSQLI_BIND_TYPE_DOUBLE;
                     break;
                 case self::MYSQLI_BIND_TYPE_INTEGER:
-                    $param = (int)$PARAM['value'];
+                    $PARAMS[0] .= self::MYSQLI_BIND_TYPE_INTEGER;
                     break;
                 case self::MYSQLI_BIND_TYPE_BOOL:
-                    $param = (int)$PARAM['value'];
+                    $PARAMS[0] .= self::MYSQLI_BIND_TYPE_BOOL;
                     break;
                 case self::MYSQLI_BIND_TYPE_STRING:
                 default:
-                    $param = (string)$PARAM['value'];
+                    $PARAMS[0] .= self::MYSQLI_BIND_TYPE_STRING;
                     break;
             }
 
-            $stmt->bind_param($PARAM['mysqliBindType'], $param);
+            $PARAMS[] = &$PARAM['value'];
         }
 
-        $stmt->execute();
-        return $stmt->get_result();
+        call_user_func_array([$stmt, 'bind_param'], $PARAMS);
+        return $stmt;
     }
 }

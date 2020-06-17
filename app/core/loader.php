@@ -12,7 +12,10 @@ function classLoader($className)
         $fileName = str_replace('\\', '/', $namespace) . '/' . $className;
     }
 
-    require_once APP_PATH . DS . $fileName . '.php';
+    if (file_exists(APP_PATH . DS . $fileName . '.php'))
+        require_once APP_PATH . DS . $fileName . '.php';
+    else 
+        throw new Exception('Nie znaleziono klasy');
 }
 
 spl_autoload_register('classLoader');
